@@ -12,6 +12,7 @@ itsdangerous==2.2.0
 Jinja2==3.1.4
 MarkupSafe==2.1.5
 mongoengine==0.28.2
+PyJWT==2.8.0
 pymongo==3.11.0
 Werkzeug==2.2.2
 WTForms==3.1.2
