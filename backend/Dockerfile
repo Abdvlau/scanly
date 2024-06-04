@@ -21,7 +21,7 @@ COPY . /app/
 ENV FLASK_ENV=development
 
 # Expose the port that the Flask app runs on
-EXPOSE 5000
+EXPOSE 5001
 
 # Command to run the Flask app
 CMD ["python", "run.py"]
