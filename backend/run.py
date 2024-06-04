@@ -7,4 +7,4 @@ app = create_app()
 # Checking if this script is the main entry point of your application
 if __name__ == '__main__':
     # Running the Flask development server with debug mode enabled
-    app.run(debug=True)
+    app.run("0.0.0.0", debug=True)
