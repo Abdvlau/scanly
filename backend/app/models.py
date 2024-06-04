@@ -2,7 +2,7 @@
 from pymongo import MongoClient
 from bson.objectid import ObjectId
 
-client = MongoClient('mongodb://127.0.0.1:27017/?directConnection=true&serverSelectionTimeoutMS=2000&appName=mongosh+2.2.6')
+client = MongoClient("mongodb+srv://scanly:admin@cluster0.lxv1b75.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 db = client['myCollection']
 
 class User:
