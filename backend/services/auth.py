@@ -5,27 +5,45 @@ from app.models import User
 import bcrypt
 import jwt
 import datetime
+from functools import wraps
 import os
+from config import get_config
 
 # Creating a Flask application instance
 auth_route = Blueprint('auth', __name__)
 
 app = Flask(__name__)
 
+
+config_class = get_config()
+app.config['SECRET_KEY'] = "kalifa"
+#app.config.from_object(config_class)
+
 # Middleware to verify JWT token
-@auth_route.before_request
-def before_request():
-    g.user = None
-    token = request.headers.get('Authorization')
-    if token:
+def token_required(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        
+        # Check if the token is in the request headers
+        if 'Authorization' in request.headers:
+            token = request.headers['Authorization'].split(" ")[1]  # Assuming 'Bearer <token>'
+        
+        if not token:
+            return jsonify({'message': 'Token is missing!'}), 401
+        
         try:
-            # Decoding and verifying JWT token
-            payload = jwt.decode(token, app.config['SECRET_KEY'])
-            g.user = payload['username']
+            # Decode the token
+            data = jwt.decode(token, app.config['SECRET_KEY'], algorithms=["HS256"])
+            current_user = data['username']
         except jwt.ExpiredSignatureError:
-            return jsonify({'message': 'Token expired'}), 401
+            return jsonify({'message': 'Token has expired!'}), 401
         except jwt.InvalidTokenError:
-            return jsonify({'message': 'Invalid token'}), 401
+            return jsonify({'message': 'Invalid token!'}), 401
+        
+        return f(current_user, *args, **kwargs)
+    
+    return decorated
 
 # Route for user signup
 @auth_route.route('/signup', methods=['POST'])
@@ -50,6 +68,7 @@ def signup():
 
     # Creating a new user instance and saving to the database
     user.password_hash = hashed_password.decode('utf-8')
+    user.enrollment_id = data.get('enrollment_id')
     
     user.save()
 
@@ -80,8 +99,7 @@ def signin():
        return jsonify({'message': 'Invalid username or password'}), 401
 
 
-@auth_route.get('/users')
-def get_all_users():
-    users = g
-    print(users.username, "users")
-    return jsonify({'users': users}), 200
+@auth_route.route('/protected', methods=['GET'])
+@token_required
+def protected_route(current_user):
+    return jsonify({'username': current_user})

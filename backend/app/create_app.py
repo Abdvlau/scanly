@@ -9,7 +9,6 @@ def create_app():
     config_class = get_config()
     app.config.from_object(config_class)
     app.register_blueprint(main_blueprint)
-    app.config['SECRET_KEY'] = "kalifa"
     app.register_blueprint(attendance_route, url_prefix='/attendance')
     app.register_blueprint(auth_route, url_prefix='/auth')
     return app

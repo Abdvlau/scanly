@@ -6,10 +6,10 @@ client = MongoClient('mongodb://127.0.0.1:27017/?directConnection=true&serverSel
 db = client['myCollection']
 
 class User:
-    def __init__(self, username, email=None, role=None, password_hash=None, last_login=None, profile_picture=None):
+    def __init__(self, username, email=None, enrollment_id=None, password_hash=None, last_login=None, profile_picture=None):
         self.username = username
         self.email = email
-        self.role = role
+        self.enrollment_id = enrollment_id
         self.password_hash = password_hash
         self.last_login = last_login
         self.profile_picture = profile_picture
@@ -19,7 +19,7 @@ class User:
         user_data = {
             'username': self.username,
             'email': self.email,
-            'role': self.role,
+            'enrollment_id': self.enrollment_id,
             'password_hash': self.password_hash,
             'last_login': self.last_login,
             'profile_picture': self.profile_picture
@@ -43,22 +43,37 @@ class User:
             return None
 
 class AttendanceRecord:
-    def __init__(self, user_id, class_date, status=None, remarks=None, modified_by=None):
+    def __init__(self, user_id, date, time, course, enrollment_id, status=None):
         self.user_id = user_id
-        self.class_date = class_date
+        self.date = date
+        self.time = time
+        self.course = course
         self.status = status
-        self.remarks = remarks
-        self.modified_by = modified_by
+        self.enrollment_id = enrollment_id
+
+        self.attendance_collection = db['attendance_records']
 
     def save(self):
-        attendance_collection = db['attendance_records']
+        attendance_collection = self.attendance_collection
         attendance_data = {
             'user_id': self.user_id,
-            'class_date': self.class_date,
+            'date': self.date,
+            'time': self.time,
             'status': self.status,
-            'remarks': self.remarks,
-            'modified_by': self.modified_by
+            "course": self.course,
+            "enrollment_id": self.enrollment_id
         }
         attendance_collection.insert_one(attendance_data)
+
+    @classmethod
+    def get_all_attendances(self):
+        attendance_collection = db['attendance_records']
+        return list(attendance_collection.find())
+
+    @classmethod
+    def filter_attendances_by_date(self, date):
+        attendance_collection = db['attendance_records']
+        return list(attendance_collection.find({'date': date}))
+
 
 # Define other models similarly
