@@ -1,5 +1,5 @@
 # Use the official Python image from the Docker Hub
-FROM python:3.12-slim
+FROM python:3.9
 
 # Set environment variables to prevent Python from writing .pyc files and to buffer output
 ENV PYTHONDONTWRITEBYTECODE=1
